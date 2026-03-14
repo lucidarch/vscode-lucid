@@ -2,8 +2,10 @@ import * as vscode from 'vscode';
 import { detect } from './lucid/detector';
 import { createFileWatcher, findUnitByClassName } from './lucid/scanner';
 import { LucidProject } from './lucid/types';
+import { UsageLocation } from './lucid/usages';
 import { LucidTreeProvider } from './providers/treeView';
 import { LucidCodeLensProvider } from './providers/codelens';
+import { LucidUsagesCodeLensProvider, LucidReferenceProvider } from './providers/references';
 import { makeFeature } from './commands/makeFeature';
 import { makeJob } from './commands/makeJob';
 import { makeOperation } from './commands/makeOperation';
@@ -19,6 +21,7 @@ import { LucidTreeItem } from './providers/treeView';
 
 let treeProvider: LucidTreeProvider | undefined;
 let codeLensProvider: LucidCodeLensProvider | undefined;
+let usagesCodeLensProvider: LucidUsagesCodeLensProvider | undefined;
 let currentProject: LucidProject | undefined;
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
@@ -70,11 +73,24 @@ async function initializeExtension(
     // File watcher for tree auto-refresh
     const fileWatcher = createFileWatcher(project, () => treeProvider?.refresh());
 
-    // ── CodeLens ──────────────────────────────────────────────────────────────
+    // ── CodeLens: ->run() navigation (Features / Operations) ─────────────────
     codeLensProvider = new LucidCodeLensProvider(project);
     const codeLensRegistration = vscode.languages.registerCodeLensProvider(
         { language: 'php' },
         codeLensProvider
+    );
+
+    // ── CodeLens: "Used by" on Job / Operation class declarations ─────────────
+    usagesCodeLensProvider = new LucidUsagesCodeLensProvider(project);
+    const usagesCodeLensRegistration = vscode.languages.registerCodeLensProvider(
+        { language: 'php' },
+        usagesCodeLensProvider
+    );
+
+    // ── Reference Provider: Shift+F12 on Job/Operation class names ───────────
+    const referenceRegistration = vscode.languages.registerReferenceProvider(
+        { language: 'php' },
+        new LucidReferenceProvider(project)
     );
 
     // ── Commands ──────────────────────────────────────────────────────────────
@@ -98,6 +114,28 @@ async function initializeExtension(
                 await vscode.window.showTextDocument(uri);
             } else {
                 vscode.window.showWarningMessage(`Could not find unit: ${className}`);
+            }
+        }],
+
+        ['lucid.showUsages', async (className: string, usages: UsageLocation[]) => {
+            if (usages.length === 0) { return; }
+
+            const items = usages.map(u => ({
+                label: `$(symbol-event) ${u.callerName}`,
+                description: vscode.workspace.asRelativePath(u.uri),
+                usage: u,
+            }));
+
+            const picked = await vscode.window.showQuickPick(items, {
+                title: `Units that use ${className}`,
+                placeHolder: 'Select a caller to navigate to it',
+            });
+
+            if (picked) {
+                const doc = await vscode.window.showTextDocument(picked.usage.uri);
+                const pos = new vscode.Position(picked.usage.line, 0);
+                doc.selection = new vscode.Selection(pos, pos);
+                doc.revealRange(new vscode.Range(pos, pos), vscode.TextEditorRevealType.InCenter);
             }
         }],
 
@@ -139,6 +177,8 @@ async function initializeExtension(
         treeView,
         fileWatcher,
         codeLensRegistration,
+        usagesCodeLensRegistration,
+        referenceRegistration,
         ...registeredCommands
     );
 

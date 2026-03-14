@@ -125,6 +125,10 @@
         "title": "Lucid: Delete Operation"
       },
       {
+        "command": "lucid.showUsages",
+        "title": "Lucid: Show Usages"
+      },
+      {
         "command": "lucid.makeJobInContext",
         "title": "Make Job Here"
       },
