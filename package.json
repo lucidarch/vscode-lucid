@@ -1,0 +1,211 @@
+{
+  "name": "vscode-lucid",
+  "displayName": "Lucid Architecture",
+  "description": "VS Code extension for Lucid Architecture — make commands, tree view, and CodeLens for ->run() calls",
+  "version": "0.1.0",
+  "publisher": "lucidarch",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lucidarch/vscode-lucid"
+  },
+  "bugs": {
+    "url": "https://github.com/lucidarch/vscode-lucid/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Snippets"
+  ],
+  "keywords": [
+    "lucid",
+    "lucidarch",
+    "laravel",
+    "architecture",
+    "php"
+  ],
+  "icon": "icons/lucid.png",
+  "activationEvents": [
+    "workspaceContains:**/vendor/lucidarch/lucid/src/Finder.php"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Lucid Architecture",
+      "properties": {
+        "lucid.binaryPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path to the Lucid CLI binary. Leave empty to use ./vendor/bin/lucid."
+        },
+        "lucid.mode": {
+          "type": "string",
+          "enum": ["auto", "micro", "monolith"],
+          "default": "auto",
+          "description": "Override Lucid mode detection. 'auto' detects from app/Services/ presence."
+        },
+        "lucid.showCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show inline 'Go to Job/Operation' CodeLens on ->run() calls."
+        },
+        "lucid.treeView.showTestFiles": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show test file nodes in the Lucid tree view."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "lucid.makeFeature",
+        "title": "Lucid: Make Feature"
+      },
+      {
+        "command": "lucid.makeJob",
+        "title": "Lucid: Make Job"
+      },
+      {
+        "command": "lucid.makeOperation",
+        "title": "Lucid: Make Operation"
+      },
+      {
+        "command": "lucid.makeService",
+        "title": "Lucid: Make Service"
+      },
+      {
+        "command": "lucid.makeController",
+        "title": "Lucid: Make Controller"
+      },
+      {
+        "command": "lucid.makeModel",
+        "title": "Lucid: Make Model"
+      },
+      {
+        "command": "lucid.makeRequest",
+        "title": "Lucid: Make Request"
+      },
+      {
+        "command": "lucid.makePolicy",
+        "title": "Lucid: Make Policy"
+      },
+      {
+        "command": "lucid.makeMigration",
+        "title": "Lucid: Make Migration"
+      },
+      {
+        "command": "lucid.initMicro",
+        "title": "Lucid: Initialize Micro"
+      },
+      {
+        "command": "lucid.initMonolith",
+        "title": "Lucid: Initialize Monolith"
+      },
+      {
+        "command": "lucid.refreshTreeView",
+        "title": "Lucid: Refresh Tree View",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "lucid.navigateToUnit",
+        "title": "Lucid: Go to Unit"
+      },
+      {
+        "command": "lucid.deleteFeature",
+        "title": "Lucid: Delete Feature"
+      },
+      {
+        "command": "lucid.deleteJob",
+        "title": "Lucid: Delete Job"
+      },
+      {
+        "command": "lucid.deleteOperation",
+        "title": "Lucid: Delete Operation"
+      },
+      {
+        "command": "lucid.makeJobInContext",
+        "title": "Make Job Here"
+      },
+      {
+        "command": "lucid.makeFeatureInContext",
+        "title": "Make Feature Here"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "lucidArchitecture",
+          "name": "Lucid Architecture",
+          "when": "lucid.isLucidProject"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "lucid.refreshTreeView",
+          "when": "view == lucidArchitecture",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "lucid.makeJobInContext",
+          "when": "view == lucidArchitecture && viewItem == domain",
+          "group": "lucid@1"
+        },
+        {
+          "command": "lucid.makeFeatureInContext",
+          "when": "view == lucidArchitecture && viewItem == service",
+          "group": "lucid@1"
+        },
+        {
+          "command": "lucid.deleteFeature",
+          "when": "view == lucidArchitecture && viewItem == feature",
+          "group": "lucid@2"
+        },
+        {
+          "command": "lucid.deleteJob",
+          "when": "view == lucidArchitecture && viewItem == job",
+          "group": "lucid@2"
+        },
+        {
+          "command": "lucid.deleteOperation",
+          "when": "view == lucidArchitecture && viewItem == operation",
+          "group": "lucid@2"
+        }
+      ]
+    },
+    "snippets": [
+      {
+        "language": "php",
+        "path": "./snippets/lucid.code-snippets.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node esbuild.js --production",
+    "build": "node esbuild.js",
+    "watch": "node esbuild.js --watch",
+    "pretest": "node esbuild.js",
+    "test": "node ./dist/test/runTests.js",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.5",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@vscode/test-electron": "^2.3.8",
+    "esbuild": "^0.20.0",
+    "eslint": "^8.56.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.3.3",
+    "@vscode/vsce": "^2.22.0"
+  }
+}

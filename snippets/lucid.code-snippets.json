@@ -1,0 +1,108 @@
+{
+    "Lucid Job": {
+        "prefix": "lucid-job",
+        "scope": "php",
+        "description": "Scaffold a Lucid Job class",
+        "body": [
+            "<?php",
+            "",
+            "namespace App\\Domains\\${1:Domain}\\Jobs;",
+            "",
+            "use Lucid\\Units\\Job;",
+            "",
+            "class ${2:Name}Job extends Job",
+            "{",
+            "    public function __construct(",
+            "        private readonly ${3:string} \\$${4:param},",
+            "    ) {}",
+            "",
+            "    public function handle(): ${5:void}",
+            "    {",
+            "        $0",
+            "    }",
+            "}"
+        ]
+    },
+
+    "Lucid Queueable Job": {
+        "prefix": "lucid-qjob",
+        "scope": "php",
+        "description": "Scaffold a queueable Lucid Job class",
+        "body": [
+            "<?php",
+            "",
+            "namespace App\\Domains\\${1:Domain}\\Jobs;",
+            "",
+            "use Lucid\\Units\\Job;",
+            "use Illuminate\\Contracts\\Queue\\ShouldQueue;",
+            "",
+            "class ${2:Name}Job extends Job implements ShouldQueue",
+            "{",
+            "    public function __construct(",
+            "        private readonly ${3:string} \\$${4:param},",
+            "    ) {}",
+            "",
+            "    public function handle(): ${5:void}",
+            "    {",
+            "        $0",
+            "    }",
+            "}"
+        ]
+    },
+
+    "Lucid Feature": {
+        "prefix": "lucid-feature",
+        "scope": "php",
+        "description": "Scaffold a Lucid Feature class",
+        "body": [
+            "<?php",
+            "",
+            "namespace App\\Features;",
+            "",
+            "use Lucid\\Units\\Feature;",
+            "use Illuminate\\Http\\Request;",
+            "",
+            "class ${1:Name}Feature extends Feature",
+            "{",
+            "    public function handle(Request \\$request): ${2:mixed}",
+            "    {",
+            "        $0",
+            "    }",
+            "}"
+        ]
+    },
+
+    "Lucid Operation": {
+        "prefix": "lucid-operation",
+        "scope": "php",
+        "description": "Scaffold a Lucid Operation class",
+        "body": [
+            "<?php",
+            "",
+            "namespace App\\Operations;",
+            "",
+            "use Lucid\\Units\\Operation;",
+            "",
+            "class ${1:Name}Operation extends Operation",
+            "{",
+            "    public function __construct(",
+            "        private readonly ${2:string} \\$${3:param},",
+            "    ) {}",
+            "",
+            "    public function handle(): ${4:void}",
+            "    {",
+            "        $0",
+            "    }",
+            "}"
+        ]
+    },
+
+    "Lucid run() call": {
+        "prefix": "lucid-run",
+        "scope": "php",
+        "description": "Insert a $this->run() call",
+        "body": [
+            "\\$this->run(new ${1:JobName}(${2:}));"
+        ]
+    }
+}
