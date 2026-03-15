@@ -7,6 +7,7 @@ import { LucidTreeProvider } from './providers/treeView';
 import { LucidCodeLensProvider } from './providers/codelens';
 import { LucidUsagesCodeLensProvider, LucidReferenceProvider } from './providers/references';
 import { LucidDefinitionProvider } from './providers/definition';
+import { LucidHoverProvider } from './providers/hover';
 import { makeFeature } from './commands/makeFeature';
 import { makeJob } from './commands/makeJob';
 import { makeOperation } from './commands/makeOperation';
@@ -86,6 +87,12 @@ async function initializeExtension(
     const usagesCodeLensRegistration = vscode.languages.registerCodeLensProvider(
         { language: 'php' },
         usagesCodeLensProvider
+    );
+
+    // ── Hover Provider: constructor signature + handle() return type + usage count ──
+    const hoverRegistration = vscode.languages.registerHoverProvider(
+        { language: 'php' },
+        new LucidHoverProvider(project)
     );
 
     // ── Definition Provider: Ctrl+Click / F12 on class names inside ->run() / ->serve() ──
@@ -185,6 +192,7 @@ async function initializeExtension(
         fileWatcher,
         codeLensRegistration,
         usagesCodeLensRegistration,
+        hoverRegistration,
         definitionRegistration,
         referenceRegistration,
         ...registeredCommands

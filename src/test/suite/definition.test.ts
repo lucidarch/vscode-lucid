@@ -46,6 +46,14 @@ suite('Definition Provider', () => {
         assert.ok(loc.uri.fsPath.endsWith('ParseProductFiltersJob.php'));
     });
 
+    test('resolves multi-line ->run(new ClassName( to job file', async () => {
+        const content = `<?php\n$this->run(new AttachProductImagesJob(\n    productId: $product->id,\n    images: $request->file('images'),\n));`;
+        const result = await getDefinition(content, 'AttachProductImagesJob');
+        assert.ok(result, 'Expected a definition location for multi-line call');
+        const loc = result as vscode.Location;
+        assert.ok(loc.uri.fsPath.endsWith('AttachProductImagesJob.php'));
+    });
+
     test('returns undefined for class names outside ->run() / ->serve()', async () => {
         const content = `<?php\nuse App\\Features\\ListProductsFeature;\nclass Foo {}`;
         const result = await getDefinition(content, 'ListProductsFeature');
