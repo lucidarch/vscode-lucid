@@ -2,7 +2,7 @@
   "name": "vscode-lucid",
   "displayName": "Lucid Architecture",
   "description": "VS Code extension for Lucid Architecture — make commands, tree view, and CodeLens for ->run() calls",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "lucidarch",
   "icon": "icons/lucid-logo-128.png",
   "license": "MIT",
@@ -196,8 +196,8 @@
     "pretest": "node esbuild.js",
     "test": "node ./dist/test/runTests.js",
     "lint": "eslint src --ext ts",
-    "package": "vsce package",
-    "publish": "vsce publish"
+    "package": "vsce package --baseImagesUrl https://raw.githubusercontent.com/lucidarch/vscode-lucid/main",
+    "publish": "vsce publish --baseImagesUrl https://raw.githubusercontent.com/lucidarch/vscode-lucid/main"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
