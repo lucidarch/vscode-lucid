@@ -21,40 +21,74 @@ suite('Hover Provider', () => {
         return provider.provideHover(doc, pos, token);
     }
 
-    test('shows constructor params and handle return type for ->run(Job::class)', async () => {
+    // ── Jobs ─────────────────────────────────────────────────────────────────
+
+    test('job: shows constructor signature (no visibility modifiers)', async () => {
         const content = `<?php\n$this->run(GetProductsJob::class);`;
         const hover = await getHover(content, 'GetProductsJob');
         assert.ok(hover, 'Expected hover to be returned');
         const md = (hover.contents[0] as vscode.MarkdownString).value;
-        assert.ok(md.includes('GetProductsJob'), 'Title missing');
-        assert.ok(md.includes('__construct'), 'Constructor missing');
-        assert.ok(md.includes('handle()'), 'handle() missing');
+        assert.ok(md.includes('GetProductsJob('), 'Signature missing');
+        assert.ok(!md.includes('private'), 'Visibility modifier should be stripped');
+        assert.ok(!md.includes('readonly'), 'readonly should be stripped');
     });
 
-    test('shows constructor params for ->serve(Feature::class)', async () => {
-        const content = `<?php\nreturn $this->serve(ListProductsFeature::class);`;
-        const hover = await getHover(content, 'ListProductsFeature');
-        assert.ok(hover, 'Expected hover to be returned');
+    test('job: shows handle() return type', async () => {
+        const content = `<?php\n$this->run(GetProductsJob::class);`;
+        const hover = await getHover(content, 'GetProductsJob');
+        assert.ok(hover);
         const md = (hover.contents[0] as vscode.MarkdownString).value;
-        assert.ok(md.includes('ListProductsFeature'));
+        assert.ok(md.includes('handle():'), 'handle() return type missing');
     });
 
-    test('shows usage count', async () => {
+    test('job: shows usage count', async () => {
         const content = `<?php\n$this->run(ParseProductFiltersJob::class);`;
         const hover = await getHover(content, 'ParseProductFiltersJob');
-        assert.ok(hover, 'Expected hover to be returned');
+        assert.ok(hover);
         const md = (hover.contents[0] as vscode.MarkdownString).value;
-        // ParseProductFiltersJob is used by ListProductsFeature
         assert.ok(md.includes('Used by'), 'Usage count missing');
     });
 
-    test('shows hover for multi-line ->run(new ClassName(', async () => {
+    test('job: works for multi-line ->run(new ClassName(', async () => {
         const content = `<?php\n$this->run(new AttachProductImagesJob(\n    productId: $product->id,\n));`;
         const hover = await getHover(content, 'AttachProductImagesJob');
         assert.ok(hover, 'Expected hover for multi-line call');
         const md = (hover.contents[0] as vscode.MarkdownString).value;
-        assert.ok(md.includes('AttachProductImagesJob'));
+        assert.ok(md.includes('AttachProductImagesJob('));
     });
+
+    // ── Features ─────────────────────────────────────────────────────────────
+
+    test('feature: shows ordered ->run() sequence', async () => {
+        const content = `<?php\nreturn $this->serve(ListProductsFeature::class);`;
+        const hover = await getHover(content, 'ListProductsFeature');
+        assert.ok(hover, 'Expected hover to be returned');
+        const md = (hover.contents[0] as vscode.MarkdownString).value;
+        // ListProductsFeature runs ParseProductFiltersJob, GetProductsJob, TrackProductListingViewJob
+        assert.ok(md.includes('1.'), 'Numbered list missing');
+        assert.ok(md.includes('ParseProductFiltersJob'), 'First job missing');
+        assert.ok(md.includes('GetProductsJob'), 'Second job missing');
+    });
+
+    test('feature: sequence is in declaration order', async () => {
+        const content = `<?php\nreturn $this->serve(ListProductsFeature::class);`;
+        const hover = await getHover(content, 'ListProductsFeature');
+        assert.ok(hover);
+        const md = (hover.contents[0] as vscode.MarkdownString).value;
+        const pos1 = md.indexOf('ParseProductFiltersJob');
+        const pos2 = md.indexOf('GetProductsJob');
+        assert.ok(pos1 < pos2, 'Jobs should appear in declaration order');
+    });
+
+    test('feature: does not show constructor or handle() return type', async () => {
+        const content = `<?php\nreturn $this->serve(ListProductsFeature::class);`;
+        const hover = await getHover(content, 'ListProductsFeature');
+        assert.ok(hover);
+        const md = (hover.contents[0] as vscode.MarkdownString).value;
+        assert.ok(!md.includes('handle():'), 'handle() return type should not appear for features');
+    });
+
+    // ── Negative cases ────────────────────────────────────────────────────────
 
     test('returns undefined outside ->run() / ->serve()', async () => {
         const content = `<?php\nuse App\\Domains\\Product\\Jobs\\GetProductsJob;`;
