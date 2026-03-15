@@ -6,6 +6,7 @@ import { UsageLocation } from './lucid/usages';
 import { LucidTreeProvider } from './providers/treeView';
 import { LucidCodeLensProvider } from './providers/codelens';
 import { LucidUsagesCodeLensProvider, LucidReferenceProvider } from './providers/references';
+import { LucidDefinitionProvider } from './providers/definition';
 import { makeFeature } from './commands/makeFeature';
 import { makeJob } from './commands/makeJob';
 import { makeOperation } from './commands/makeOperation';
@@ -85,6 +86,12 @@ async function initializeExtension(
     const usagesCodeLensRegistration = vscode.languages.registerCodeLensProvider(
         { language: 'php' },
         usagesCodeLensProvider
+    );
+
+    // ── Definition Provider: Ctrl+Click / F12 on class names inside ->run() / ->serve() ──
+    const definitionRegistration = vscode.languages.registerDefinitionProvider(
+        { language: 'php' },
+        new LucidDefinitionProvider(project)
     );
 
     // ── Reference Provider: Shift+F12 on Job/Operation class names ───────────
@@ -178,6 +185,7 @@ async function initializeExtension(
         fileWatcher,
         codeLensRegistration,
         usagesCodeLensRegistration,
+        definitionRegistration,
         referenceRegistration,
         ...registeredCommands
     );
