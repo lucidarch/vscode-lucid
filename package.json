@@ -4,6 +4,7 @@
   "description": "VS Code extension for Lucid Architecture — make commands, tree view, and CodeLens for ->run() calls",
   "version": "0.1.0",
   "publisher": "lucidarch",
+  "icon": "icons/lucid-logo-128.png",
   "license": "MIT",
   "repository": {
     "type": "git",
