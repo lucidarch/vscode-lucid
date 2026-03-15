@@ -1,7 +1,7 @@
 # Lucid Architecture for VS Code
 
-<p align="center"><img src="preview-1.png" alt="Lucid Architecture VSCode Extension Referencing"></p>
-<p align="center"><img src="preview-2.png" alt="Lucid Architecture VSCode Extension Go To Job"></p>
+<p align="center"><img src="https://github.com/lucidarch/vscode-lucid/blob/main/preview-1.png?raw=true" alt="Lucid Architecture VSCode Extension Referencing"></p>
+<p align="center"><img src="https://github.com/lucidarch/vscode-lucid/blob/main/preview-2.png?raw=true" alt="Lucid Architecture VSCode Extension Go To Job"></p>
 
 [![Version](https://img.shields.io/visual-studio-marketplace/v/lucidarch.vscode-lucid)](https://marketplace.visualstudio.com/items?itemName=lucidarch.vscode-lucid)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/lucidarch.vscode-lucid)](https://marketplace.visualstudio.com/items?itemName=lucidarch.vscode-lucid)

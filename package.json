@@ -2,7 +2,7 @@
   "name": "vscode-lucid",
   "displayName": "Lucid Architecture",
   "description": "VS Code extension for Lucid Architecture — make commands, tree view, and CodeLens for ->run() calls",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "lucidarch",
   "icon": "icons/lucid-logo-128.png",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other",
+    "Programming Languages",
     "Snippets"
   ],
   "keywords": [
