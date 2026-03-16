@@ -35,6 +35,7 @@ Run any `lucid make:*` command directly from the command palette without leaving
 | `Lucid: Initialize Micro` | Scaffolds a new Micro project |
 | `Lucid: Initialize Monolith` | Scaffolds a new Monolith project |
 | `Lucid: Delete Feature/Job/Operation` | Removes a unit with confirmation |
+| `Lucid: Show Unused Units` | Lists all Jobs/Operations not used by any Feature or Operation |
 
 Generated files use the Lucid package's own stubs — template updates in the package are reflected automatically.
 
@@ -60,6 +61,55 @@ $this->run(FindProductJob::class);
 $this->run(new FindProductJob($id));
 $this->run('FindProductJob');
 ```
+
+Every Job and Operation class declaration also shows a **Used by N units** link. Clicking it opens a quick-pick list of every Feature or Operation that calls `->run()` with that class, each entry navigating to the exact line.
+
+### Go to Definition (Ctrl+Click / F12)
+
+Ctrl+Click (or F12) on any class name inside a `->run()` or `->serve()` call jumps directly to that unit's file — no PHP language server required. Works with all call styles including multi-line instantiations:
+
+```php
+$this->run(new AttachProductImagesJob(
+    productId: $product->id,
+    images: $request->file('images'),
+));
+```
+
+### Find All References (Shift+F12)
+
+Place the cursor on a Job or Operation class name and press Shift+F12 (or right-click → Find All References) to see every `->run()` call site across the project listed in the References panel.
+
+### Hover Tooltips
+
+Hover over a class name inside `->run()` or `->serve()` for an inline summary — no navigation needed.
+
+**Jobs and Operations** show the constructor signature (with visibility/`readonly` modifiers stripped for readability) and the `handle()` return type, plus a usage count:
+
+```
+FindProductJob
+──────────────
+FindProductJob(string $id, bool $withVariants = false)
+handle(): Product
+Used by 2 units: GetProductFeature, UpdateProductFeature
+```
+
+**Features** show the ordered sequence of `->run()` calls — effectively an inline `lucid feature:describe`:
+
+```
+ListProductsFeature
+───────────────────
+1. ParseProductFiltersJob
+2. GetProductsJob
+3. TrackProductListingViewJob
+```
+
+### Unused Units Diagnostic
+
+Jobs and Operations that are not called by any Feature or Operation receive a **hint diagnostic** (dotted underline) on their class declaration. They also appear in the Problems panel (`Cmd+Shift+M`) under the Lucid source.
+
+Run **`Lucid: Show Unused Units`** from the command palette for a full quick-pick list of every unreferenced unit, each clickable to navigate.
+
+Diagnostics update automatically 5 seconds after any PHP file is saved. Disable entirely via the `lucid.diagnostics.unusedUnits` setting.
 
 ### Snippets
 
@@ -100,6 +150,7 @@ The make/delete/init commands require a working `vendor/bin/lucid` binary. The t
 | `lucid.mode` | `"auto"` | Override mode detection: `"auto"`, `"micro"`, or `"monolith"`. |
 | `lucid.showCodeLens` | `true` | Show inline `->run()` navigation links. |
 | `lucid.treeView.showTestFiles` | `false` | Show test file nodes in the tree view. |
+| `lucid.diagnostics.unusedUnits` | `true` | Show a hint diagnostic on Job/Operation class declarations that are not used by any Feature or Operation. |
 
 ---
 
@@ -134,4 +185,4 @@ Bug reports and pull requests are welcome at [github.com/lucidarch/vscode-lucid]
 
 ## License
 
-MIT © [Lucid Architecture](https://lucidarch.dev)
+MIT © [Lucid Architecture](https://lucidarch.site)

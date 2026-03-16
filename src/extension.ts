@@ -8,6 +8,7 @@ import { LucidCodeLensProvider } from './providers/codelens';
 import { LucidUsagesCodeLensProvider, LucidReferenceProvider } from './providers/references';
 import { LucidDefinitionProvider } from './providers/definition';
 import { LucidHoverProvider } from './providers/hover';
+import { LucidDiagnosticsProvider, collectUnusedUnits } from './providers/diagnostics';
 import { makeFeature } from './commands/makeFeature';
 import { makeJob } from './commands/makeJob';
 import { makeOperation } from './commands/makeOperation';
@@ -107,6 +108,17 @@ async function initializeExtension(
         new LucidReferenceProvider(project)
     );
 
+    // ── Diagnostics: hint on unused Job/Operation units ───────────────────────
+    const diagnosticsProvider = new LucidDiagnosticsProvider(project);
+    // Initial scan — delayed so the workspace index is warm and not intrusive at startup.
+    diagnosticsProvider.scheduleRefresh(8000);
+    // Re-scan when any PHP file is saved (a Feature may have started/stopped using a unit).
+    const onSaveDisposable = vscode.workspace.onDidSaveTextDocument(doc => {
+        if (doc.languageId === 'php') {
+            diagnosticsProvider.scheduleRefresh(5000);
+        }
+    });
+
     // ── Commands ──────────────────────────────────────────────────────────────
     const commands: [string, (...args: any[]) => any][] = [
         ['lucid.makeFeature', () => makeFeature(project)],
@@ -170,6 +182,30 @@ async function initializeExtension(
             treeProvider?.refresh();
         }],
 
+        ['lucid.showUnusedUnits', async () => {
+            const unused = await collectUnusedUnits(project);
+
+            if (unused.length === 0) {
+                vscode.window.showInformationMessage('No unused units found — everything is wired up!');
+                return;
+            }
+
+            const items = unused.map(u => ({
+                label: `$(circle-slash) ${u.name}`,
+                description: vscode.workspace.asRelativePath(u.uri),
+                uri: u.uri,
+            }));
+
+            const picked = await vscode.window.showQuickPick(items, {
+                title: `${unused.length} unused unit${unused.length === 1 ? '' : 's'}`,
+                placeHolder: 'Select a unit to navigate to it',
+            });
+
+            if (picked) {
+                await vscode.window.showTextDocument(picked.uri);
+            }
+        }],
+
         // Context-menu make commands (tree node → pre-fill domain/service)
         ['lucid.makeJobInContext', async (item?: LucidTreeItem) => {
             const domain = item?.kind === 'domain' ? item.itemLabel : undefined;
@@ -195,6 +231,8 @@ async function initializeExtension(
         hoverRegistration,
         definitionRegistration,
         referenceRegistration,
+        diagnosticsProvider,
+        onSaveDisposable,
         ...registeredCommands
     );
 

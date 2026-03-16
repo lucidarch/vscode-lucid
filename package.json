@@ -55,6 +55,11 @@
           "type": "boolean",
           "default": false,
           "description": "Show test file nodes in the Lucid tree view."
+        },
+        "lucid.diagnostics.unusedUnits": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a hint diagnostic on Job/Operation class declarations that are not used by any Feature or Operation."
         }
       }
     },
@@ -127,6 +132,10 @@
       {
         "command": "lucid.showUsages",
         "title": "Lucid: Show Usages"
+      },
+      {
+        "command": "lucid.showUnusedUnits",
+        "title": "Lucid: Show Unused Units"
       },
       {
         "command": "lucid.makeJobInContext",
